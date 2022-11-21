@@ -40,9 +40,3 @@ try {
   // TODO: handling your error, whenever have error from native code
 }
 ```
-
-More example in [github](https://github.com/wisnuwiry/root_detector/tree/main/example).
-
-## Credit
-
-- [RootBeer](https://github.com/scottyab/rootbeer)
