@@ -1,0 +1,24 @@
+name: root_detector
+description: A library to check root access/jailbreak in android & ios device
+version: 0.0.1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: space.wisnuwiry.root_detector
+        pluginClass: RootDetectorPlugin
+      ios:
+        pluginClass: RootDetectorPlugin

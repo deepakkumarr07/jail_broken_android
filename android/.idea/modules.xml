@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root_detector.iml" filepath="$PROJECT_DIR$/.idea/modules/root_detector.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root_detector.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/root_detector.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root_detector.main.iml" filepath="$PROJECT_DIR$/.idea/modules/root_detector.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root_detector.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/root_detector.unitTest.iml" />
+    </modules>
+  </component>
+</project>
