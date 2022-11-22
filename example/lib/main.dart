@@ -18,9 +18,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    a();
     super.initState();
-    initPlatformState();
+    a();
+    // initPlatformState();
   }
 
   a() async {
@@ -32,6 +32,11 @@ class _MyAppState extends State<MyApp> {
     print('isRooted');
     var res1 = await RootDetector.isRooted();
     print(res1);
+    print('privacyChecker');
+    var res2 = await RootDetector.privacyChecker;
+    print(res2);
+    _isRooted = res2.toString();
+    setState(() {});
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.

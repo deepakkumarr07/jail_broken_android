@@ -1,7 +1,6 @@
 package space.wisnuwiry.root_detector
 
 import android.content.Context
-//import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.NonNull
 import com.andreacioccarelli.billingprotector.BillingProtector
@@ -25,7 +24,6 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.setMethodCallHandler(this)
         context = flutterPluginBinding.applicationContext
         bp = BillingProtector(context)
-
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -39,6 +37,9 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
             "piratedcheck" -> {
                 piratedappcheck(result)
+            }
+            "privacychecker" -> {
+             privacychecker(result)
             }
             else -> result.notImplemented()
         }
@@ -93,6 +94,11 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             appList.add(app.name)
         }
         result.success(appList)
+    }
+
+    private fun privacychecker(@NonNull result: Result) {
+        val installer = context.packageManager.getInstallerPackageName(context.packageName)
+        result.success("$installer")
     }
 
 //    private fun checkLuckyPatcher(packagelist :Any?): Boolean {

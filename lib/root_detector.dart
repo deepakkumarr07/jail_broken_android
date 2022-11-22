@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 class RootDetector {
@@ -16,5 +14,9 @@ class RootDetector {
 
   static Future<dynamic> get getPiratedApps async {
     return await _channel.invokeMethod('piratedcheck');
+  }
+
+  static Future<dynamic> get privacyChecker async {
+    return await _channel.invokeMethod('privacychecker');
   }
 }
