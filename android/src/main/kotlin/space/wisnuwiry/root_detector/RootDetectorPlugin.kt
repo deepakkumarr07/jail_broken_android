@@ -1,16 +1,15 @@
 package space.wisnuwiry.root_detector
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Debug
 import android.util.Base64
 import android.util.Log
 import androidx.annotation.NonNull
 import com.andreacioccarelli.billingprotector.BillingProtector
-import com.mukesh.tamperdetector.getSignature
-import com.mukesh.tamperdetector.guardDebugger
-import com.mukesh.tamperdetector.validateSignature
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -114,35 +113,31 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private fun awif(@NonNull result: Result) {
         val ins = context.packageManager.getInstallerPackageName(context.packageName)
-        result.success("$ins")
+        result.success(ins)
     }
 
 
     private fun ac(@NonNull result: Result) {
-        Log.d("Signature", context.getSignature())
-        var res:Boolean =false;
+        var res =false
         guardDebugger({
-            res=false;
+            res=false
         }) {
-            res = true;
+            res = true
         }
         result.success(res)
     }
 
 
-//    private fun ac1(@NonNull result: Result) {
-//
-//       val res:com.mukesh.tamperdetector.Result =  context.validateSignature("")
-//
-//        Log.d("",res.toString())
-//        if(res == com.mukesh.tamperdetector.Result.VALID){
-//            result.success(false)
-//        }else{
-//            result.success(true)
-//        }
-//    }
+    private fun guardDebugger(error: (() -> Unit) = {}, function: (() -> Unit)) {
+        val isDebuggerAttached = Debug.isDebuggerConnected() || Debug.waitingForDebugger()
+        if (!isDebuggerAttached) {
+            function.invoke()
+        } else {
+            error.invoke()
+        }
+    }
 
-
+    @SuppressLint("PackageManagerGetSignatures")
     @Suppress("DEPRECATION")
     private fun sk(@NonNull result: Result){
         try {
@@ -162,7 +157,7 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 result.success(res)
             }
         } catch (exception: Exception) {
-            result.success("");
+            result.success("")
             Log.d("SD DEC ERROR :", exception.stackTrace.toString())
         }
     }
