@@ -42,4 +42,6 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.github.AndreaCioccarelli:BillingProtector:1.4.0'
+    debugImplementation 'com.github.mukeshsolanki.Android-Tamper-Detector:tamperdetector-no-op:1.0.0'
+    releaseImplementation 'com.github.mukeshsolanki.Android-Tamper-Detector:tamperdetector:1.0.0'
 }

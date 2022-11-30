@@ -1,9 +1,16 @@
 package space.wisnuwiry.root_detector
 
 import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Base64
+import android.util.Log
 import androidx.annotation.NonNull
 import com.andreacioccarelli.billingprotector.BillingProtector
+import com.mukesh.tamperdetector.getSignature
+import com.mukesh.tamperdetector.guardDebugger
+import com.mukesh.tamperdetector.validateSignature
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -11,6 +18,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import java.security.MessageDigest
 
 
 class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -20,34 +28,40 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel =
-            MethodChannel(flutterPluginBinding.binaryMessenger, "my_root_detector")
+            MethodChannel(flutterPluginBinding.binaryMessenger, "rd")
         channel.setMethodCallHandler(this)
         context = flutterPluginBinding.applicationContext
         bp = BillingProtector(context)
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        val ignoreSimulator = call.arguments == true
+        val igs = call.arguments == true
         when (call.method) {
-            "checkIsRooted" -> {
-                checkIsRooted(result, ignoreSimulator)
+            "cr" -> {
+                cR(result, igs)
             }
-            "check_emulator" -> {
-                result.success(isEmulator())
+            "ce" -> {
+                result.success(iE())
             }
-            "piratedcheck" -> {
-                piratedappcheck(result)
+            "pc" -> {
+                pac(result)
             }
-            "privacychecker" -> {
-             privacychecker(result)
+            "awif" -> {
+                awif(result)
+            }
+            "ac" -> {
+                ac(result)
+            }
+             "sk" -> {
+                sk(result)
             }
             else -> result.notImplemented()
         }
     }
 
-    private fun checkIsRooted(@NonNull result: Result, ignoreSimulator: Boolean) {
+    private fun cR(@NonNull result: Result, igs: Boolean) {
         try {
-            if(ignoreSimulator){
+            if(igs){
                 result.success(false)
             }else{
                 result.success(bp.isRootInstalled())
@@ -69,8 +83,9 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onDetachedFromActivity() {}
 
-    private fun isEmulator(): Boolean {
-        return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic")
+    private fun iE(): Boolean {
+        return (Build.BRAND.startsWith("generic")
+                && Build.DEVICE.startsWith("generic")
                 || Build.FINGERPRINT.startsWith("generic")
                 || Build.FINGERPRINT.startsWith("unknown")
                 || Build.HARDWARE.contains("goldfish")
@@ -85,77 +100,70 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 || Build.PRODUCT.contains("sdk_x86")
                 || Build.PRODUCT.contains("vbox86p")
                 || Build.PRODUCT.contains("emulator")
-                || Build.PRODUCT.contains("simulator"))
+                || Build.PRODUCT.contains("simulator")
+                )
     }
 
-    private fun piratedappcheck(@NonNull result: Result) {
-        val appList:MutableList<String> = ArrayList()
+    private fun pac(@NonNull result: Result) {
+        val aL:MutableList<String> = ArrayList()
         for (app in bp.getPirateAppsList()) {
-            appList.add(app.name)
+            aL.add(app.name)
         }
-        result.success(appList)
+        result.success(aL)
     }
 
-    private fun privacychecker(@NonNull result: Result) {
-        val installer = context.packageManager.getInstallerPackageName(context.packageName)
-        result.success("$installer")
+    private fun awif(@NonNull result: Result) {
+        val ins = context.packageManager.getInstallerPackageName(context.packageName)
+        result.success("$ins")
     }
 
-//    private fun checkLuckyPatcher(packagelist :Any?): Boolean {
-//        Log.d("packagelist","$packagelist")
-//        val pm = context.packageManager
-//        val packages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-//        if(packagelist!=null){
-//            for (item in packagelist as List<String> ) {
-//                Log.d("item","$item")
-//                if(item.contains(".")){
-//                   val res= isPackageInstalled(item,pm)
-//                    if(res){
-//                        return true;
-//                    }
-//                }else{
-//                    for (packageInfo in packages) {
-//                        var name= packageInfo.loadLabel(pm).toString();
-//                        var check= name.toLowerCase().trim()
-//                        check= check.replace("-","");
-//                        check= check.replace(" ","");
-//                        check= check.replace("_","");
-//                        if(check.contains(item,true)){
-//                            return true
-//                        }
-//                    }
-//                }
-//            }
-//        }else {
-//            for (packageInfo in packages) {
-//                var name = packageInfo.loadLabel(pm).toString();
-//                var check = name.toLowerCase().trim()
-//                check = check.replace("-", "");
-//                check = check.replace(" ", "");
-//                check = check.replace("_", "");
-//                if (check.contains("luсkypаtch")) {
-//                    return true
-//                }
-//            }
-//            val v1 = isPackageInstalled("com.dimonvideo.luckypatcher", pm)
-//            val v2 = isPackageInstalled("com.chelpus.lackypatch", pm)
-//            val v3 = isPackageInstalled("com.android.vending.billing.InAppBillingService.LACK", pm)
-//            val v4 = isPackageInstalled("com.android.vending.billing.InAppBillingService.CLON", pm)
-//            val v5 = isPackageInstalled("com.android.vending.billing.InAppBillingService.LACK", pm)
-//            if (v1 || v2 || v3 || v4 || v5) {
-//                return true
-//            }
+
+    private fun ac(@NonNull result: Result) {
+        Log.d("Signature", context.getSignature())
+        var res:Boolean =false;
+        guardDebugger({
+            res=false;
+        }) {
+            res = true;
+        }
+        result.success(res)
+    }
+
+
+//    private fun ac1(@NonNull result: Result) {
+//
+//       val res:com.mukesh.tamperdetector.Result =  context.validateSignature("")
+//
+//        Log.d("",res.toString())
+//        if(res == com.mukesh.tamperdetector.Result.VALID){
+//            result.success(false)
+//        }else{
+//            result.success(true)
 //        }
-//        return false
 //    }
 
-//    private fun isPackageInstalled(packageName: String, packageManager: PackageManager): Boolean {
-//        print(packageName)
-//        return try {
-//            packageManager.getPackageInfo(packageName, 0)
-//            true
-//        } catch (e: PackageManager.NameNotFoundException) {
-//            false
-//        }
-//    }
+
+    @Suppress("DEPRECATION")
+    private fun sk(@NonNull result: Result){
+        try {
+            val packageInfo: PackageInfo = context.packageManager.getPackageInfo(
+                context.packageName,
+                PackageManager.GET_SIGNATURES
+            )
+            val res:MutableList<String> = ArrayList()
+            if (packageInfo.signatures.isEmpty()) {
+                result.success(res)
+            }else{
+                for (signature in packageInfo.signatures) {
+                    val md: MessageDigest = MessageDigest.getInstance("SHA")
+                    md.update(signature.toByteArray())
+                    res.add(Base64.encodeToString(md.digest(), Base64.DEFAULT).toString().trim())
+                }
+                result.success(res)
+            }
+        } catch (exception: Exception) {
+            result.success("");
+            Log.d("SD DEC ERROR :", exception.stackTrace.toString())
+        }
+    }
 }
