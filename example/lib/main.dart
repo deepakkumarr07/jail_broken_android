@@ -32,6 +32,7 @@ class MyAppState extends State<MyApp> {
     features.add('App Signature : ${await RootDetector.signkey}');
     features
         .add('is Debugger attached : ${await RootDetector.isdebuggerRunning}');
+    print('FEATURES: ${features}');
     setState(() {});
   }
 

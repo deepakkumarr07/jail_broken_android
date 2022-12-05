@@ -40,7 +40,12 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 cR(result, igs)
             }
             "ce" -> {
-                result.success(iE())
+                try {
+                    result.success(iE())
+                }catch (exception: Exception) {
+                    result.success(false)
+                    Log.d("CE ERROR :", exception.stackTrace.toString())
+                }
             }
             "pc" -> {
                 pac(result)
@@ -65,7 +70,7 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }else{
                 result.success(bp.isRootInstalled())
             }
-        } catch (e: IllegalArgumentException) {
+        } catch (e: Exception) {
            result.success(false)
         }
     }
@@ -105,15 +110,24 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private fun pac(@NonNull result: Result) {
         val aL:MutableList<String> = ArrayList()
-        for (app in bp.getPirateAppsList()) {
-            aL.add(app.name)
+        try {
+            for (app in bp.getPirateAppsList()) {
+                aL.add(app.name)
+            }
+        } catch (exception: Exception) {
+            Log.d("PAC ERROR :", exception.stackTrace.toString())
         }
         result.success(aL)
     }
 
     private fun awif(@NonNull result: Result) {
-        val ins = context.packageManager.getInstallerPackageName(context.packageName)
-        result.success(ins)
+        try {
+            val ins = context.packageManager.getInstallerPackageName(context.packageName)
+            result.success(ins)
+        } catch (exception: Exception) {
+            Log.d("PAC ERROR :", exception.stackTrace.toString())
+            result.success(null)
+        }
     }
 
 
