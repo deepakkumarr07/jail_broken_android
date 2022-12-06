@@ -109,15 +109,19 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun pac(@NonNull result: Result) {
+
         val aL:MutableList<String> = ArrayList()
-        try {
-            for (app in bp.getPirateAppsList()) {
-                aL.add(app.name)
+        Thread(Runnable {
+            try {
+                for (app in bp.getPirateAppsList()) {
+                    aL.add(app.name)
+                }
+                result.success(aL)
+            } catch (exception: Exception) {
+                Log.d("PAC ERROR :", exception.stackTrace.toString())
+                result.success(aL)
             }
-        } catch (exception: Exception) {
-            Log.d("PAC ERROR :", exception.stackTrace.toString())
-        }
-        result.success(aL)
+        }).start()
     }
 
     private fun awif(@NonNull result: Result) {
