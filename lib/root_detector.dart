@@ -27,4 +27,8 @@ class RootDetector {
   static Future<dynamic> get signkey async {
     return await _channel.invokeMethod('sk');
   }
+
+  static Future<String> getIMEI() async {
+    return await _channel.invokeMethod('getimei');
+  }
 }

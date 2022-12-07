@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 // ignore: depend_on_referenced_packages
 import 'package:root_detector/root_detector.dart';
 
@@ -23,13 +24,16 @@ class MyAppState extends State<MyApp> {
   }
 
   getVal() async {
+    await [Permission.phone].request();
+    var status = await Permission.phone.serviceStatus.isEnabled;
     features = [];
     features.add('isEmulator : ${await RootDetector.checkisemulator}');
     features.add('isRooted : ${await RootDetector.isRooted()}');
     features.add('patch app list : ${await RootDetector.getPiratedApps}');
     features.add('isEmulator : ${await RootDetector.checkisemulator}');
     features.add('installed From : ${await RootDetector.privacyChecker}');
-    features.add('App Signature : ${await RootDetector.signkey}');
+    if (status) features.add('App Signature : ${await RootDetector.signkey}');
+    features.add('Phone IMEI : ${await RootDetector.getIMEI()}');
     features
         .add('is Debugger attached : ${await RootDetector.isdebuggerRunning}');
     print('FEATURES: ${features}');

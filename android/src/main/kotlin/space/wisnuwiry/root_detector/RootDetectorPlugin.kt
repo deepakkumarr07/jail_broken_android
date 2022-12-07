@@ -1,14 +1,19 @@
 package space.wisnuwiry.root_detector
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.media.MediaDrm
 import android.os.Build
 import android.os.Debug
+import android.telephony.TelephonyManager
 import android.util.Base64
 import android.util.Log
 import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.andreacioccarelli.billingprotector.BillingProtector
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -18,6 +23,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.security.MessageDigest
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -58,6 +65,9 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
              "sk" -> {
                 sk(result)
+            }
+            "getimei" -> {
+                getIMEINo(result)
             }
             else -> result.notImplemented()
         }
@@ -177,6 +187,56 @@ class RootDetectorPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         } catch (exception: Exception) {
             result.success("")
             Log.d("SD DEC ERROR :", exception.stackTrace.toString())
+        }
+    }
+
+    @SuppressLint("MissingPermission", "HardwareIds")
+    fun getIMEINo(@NonNull result: Result): String? {
+        var imeiNumber: String? = ""
+        Thread(Runnable {
+            try {
+                val telephonyManager: TelephonyManager =
+                    context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.READ_PHONE_STATE
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    imeiNumber=""
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    imeiNumber = getDeviceUniqueID()
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (telephonyManager.imei != null) {
+                        imeiNumber = telephonyManager.imei
+                    }
+                } else if (telephonyManager.deviceId != null) {
+                    imeiNumber = telephonyManager.deviceId
+                }
+                result.success(imeiNumber)
+            } catch (exception: Exception) {
+                Log.d("PAC ERROR :", exception.stackTrace.toString())
+                result.success(imeiNumber)
+            }
+        }).start()
+        return imeiNumber
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    fun getDeviceUniqueID(): String? {
+        val wideVineUuid = UUID(-0x121074568629b532L, -0x5c37d8232ae2de13L)
+        return try {
+            val wvDrm = MediaDrm(wideVineUuid)
+            val wideVineId: ByteArray =
+                wvDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
+            val stringWithSymbols: String = Arrays.toString(wideVineId)
+            val strWithoutBrackets = stringWithSymbols.replace("\\[".toRegex(), "")
+            val strWithoutBrackets1 = strWithoutBrackets.replace("]".toRegex(), "")
+            val strWithoutComma = strWithoutBrackets1.replace(",".toRegex(), "")
+            val strWithoutHyphen = strWithoutComma.replace("-".toRegex(), "")
+            val strWithoutSpace = strWithoutHyphen.replace(" ".toRegex(), "")
+            strWithoutSpace.substring(0, 15)
+        } catch (e: java.lang.Exception) {
+            ""
         }
     }
 }
